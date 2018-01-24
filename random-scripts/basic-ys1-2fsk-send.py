@@ -24,7 +24,7 @@ DRATE = 1000 # Baudrate in symbols per second.
              # 25 dies. 75 dies. 100 dies. 101 is as low as I can
 try:
     d = RfCat()
-    d.setModeIDLE() # three different inflections in atlas' talks...
+    d.setModeIDLE() # atlas used three different inflections in his talks...
     d.setFreq(FREQ)
     d.setMdmModulation(MOD_2FSK) # Lower side band?
     # d.setMdmModulation(MOD_ASK_OOK)
@@ -34,7 +34,7 @@ try:
     d.setMdmDRate(DRATE)
 
     # Append RSSI and LQI and CRC OK if this is set to 1:
-    d.setEnablePktAppendStatus(0) # 1 = append, 0 = don't append
+    # d.setEnablePktAppendStatus(0) # 1 = append, 0 = don't append
 
     # weird preamble insert: 010011000
 
@@ -45,10 +45,9 @@ try:
     # The CC1110/CC1111 can't be configured to do one or the other. It has to
     # send both. And it has to send both, twice at a minimum
     # d.setPktPQT(0) # Set Preamble Quality Threshold to zero (disable it entirely) Register is: PKTCTRL1
-    d.setMdmSyncWord(0b1010101010101010) # Use Syncword as an extended preamble Registers are SYNC1 and SYNC0
-    d.setMdmSyncMode(0b1) # Docs explaining this: Page 216 of 246 in PDF. Register is: MDMCFG2.SYNC_MODE
+    d.setMdmSyncWord(0b1110101010101010) # Use Syncword as an extended preamble Registers are SYNC1 and SYNC0
+    d.setMdmSyncMode(0b1) # 1 = enable preamble and syncword. Docs explaining this: Page 216 of 246 in PDF. Register is: MDMCFG2.SYNC_MODE
     d.setMdmNumPreamble(0b0) # Set number of preamble bits to transmit. 0b000 = 2 bytes. Register MDMCFG1.NUM_PREAMBLE
-
     d.setEnablePktCRC(0) # disable the crc calculation
 
     # Damnit, rfcat doesn't expose methods to control the address of this thing...
@@ -57,7 +56,7 @@ try:
     # d.setRFRegister(PKTCTRL1, modifiedcfg)
 
     #d.setMaxPower()    # Pretty sure this turns on the TX amp
-    d.setModeTX()       # It's good to enter the right mode first...
+    # d.setModeTX()       # It's good to enter the right mode first...
 
     # Variable packet length = first byte has to describe LENGTH OF THE PACKET!
     # 4 byte payload = first byte is:
@@ -69,8 +68,8 @@ try:
 
     # Both of these methods have been tested and work correctly:
     print("".join(map(chr, bytes)))
-    d.RFxmit("".join(map(chr, bytes)))
-    # d.RFxmit('xU')
+    # d.RFxmit("".join(map(chr, bytes)))
+    d.RFxmit('xUUx')
 
 
     # WITHOUT THIS YOU WILL GET USB TIMEOUTS!

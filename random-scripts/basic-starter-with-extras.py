@@ -43,8 +43,6 @@ try:
 
     bytes = [0, 0x55, 0xff]
 
-
-    d.setModeTX() # Probably a good idea to actually enter the right mode first!
     # d.RFxmit("".join(map(chr, bytes)))
 
     # TODO: Write a OOK/Morse station identity tool...

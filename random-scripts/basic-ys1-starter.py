@@ -18,7 +18,6 @@ try:
                         # by the remote.
     #d.setMaxPower()    # Pretty sure this turns on the TX amp
     bytes = [0, 0x41, 0xff] # Data to send
-    d.setModeTX()       # It's good to enter the right mode first...
     # d.RFxmit("".join(map(chr, bytes)))
     d.RFxmit('CALLSIGN, Sorry for the noise')
 

@@ -59,6 +59,7 @@ PKTLEN = 1       # Set packet length
 DRATE = 512
 try:
     d = RfCat()
+    d.setModeIDLE() # atlas used three different inflections in his talks...
     d.setFreq(FREQ)
     d.setMdmModulation(MOD_2FSK)
     d.setMdmDeviatn(4500)
@@ -68,7 +69,10 @@ try:
                         # by the remote.
     #d.setMaxPower()    # Pretty sure this turns on the TX amp
     bytes = [0, 0x41, 0xff] # Data to send
-    d.setModeTX()       # It's good to enter the right mode first...
+
+    # THIS IS WRONG! There are PROBLEMS with using setModeTX() right before
+    # calling RFxmit()! I'm not sure why... Just don't.
+    # d.setModeTX()       # NONONO! This seems to mess things up!
     d.RFxmit("".join(map(chr, bytes)))
 
     # WITHOUT THIS YOU WILL GET USB TIMEOUTS!
