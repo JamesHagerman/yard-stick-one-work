@@ -17,32 +17,61 @@ DEVIATION = 4500
 # FREQ = 313850000
 # DEVIATION = 32500 # Calculated as half of distance between peaks in GQRX
 
-PKTLEN = 8    # Set bytes per packet?
-# DRATE = 256 # Baudrate of 256 means SLOOOOW
-DRATE = 1000 # Baudrate of 1000 means 1ms pulse as a single bit
-           # 25 dies. 75 dies. 100 dies. 256 is as low as I can
+PKTLEN = 1 #0b11110000    # Set number of payload bytes per packet (including optional address byte)
+# DRATE = 101 # Baudrate of 256 means SLOOOOW
+DRATE = 1000 # Baudrate in symbols per second.
+             #1000 means 1ms pulse as a single bit
+             # 25 dies. 75 dies. 100 dies. 101 is as low as I can
 try:
     d = RfCat()
+    d.setModeIDLE() # three different inflections in atlas' talks...
     d.setFreq(FREQ)
     d.setMdmModulation(MOD_2FSK) # Lower side band?
     # d.setMdmModulation(MOD_ASK_OOK)
     d.setMdmDeviatn(DEVIATION)
-    d.makePktFLEN(PKTLEN)
+    d.makePktFLEN(PKTLEN) # Fixed packet mode... PKTLEN is length of actual packet and is put into the packet structure.
+    # d.makePktVLEN() # Variable Packet Mode = we have to define packet length ourselves... PKTLEN becomes maximum packet receive length
     d.setMdmDRate(DRATE)
+
+    # Append RSSI and LQI and CRC OK if this is set to 1:
+    d.setEnablePktAppendStatus(0) # 1 = append, 0 = don't append
+
+    # weird preamble insert: 010011000
 
     # Configure some preamble and sync word stuff:
     # Preamble is usually alternating symbols, 01010101 or whatever
     # Syncword is a unique "start of frame" word that is usually non-repeating
-    #   BTW, sometimes, the synword is configured to repeat...
-    d.setPktPQT(1) # Set Preamble Quality Threshold to zero (disable it entirely) Register is: PKTCTRL1
-    d.setMdmSyncWord(0b1111111111111111) # Registers are SYNC1 and SYNC0
-    d.setMdmSyncMode(0b0) # Docs explaining this: Page 216 of 246 in PDF. Register is: MDMCFG2
-    # d.setMdmNumPreamble(4) # Set number of preamble bits to transmit. Register MDMCFG1
+    #   BTW, sometimes, the syncword is configured to repeat...
+    # The CC1110/CC1111 can't be configured to do one or the other. It has to
+    # send both. And it has to send both, twice at a minimum
+    # d.setPktPQT(0) # Set Preamble Quality Threshold to zero (disable it entirely) Register is: PKTCTRL1
+    d.setMdmSyncWord(0b1010101010101010) # Use Syncword as an extended preamble Registers are SYNC1 and SYNC0
+    d.setMdmSyncMode(0b1) # Docs explaining this: Page 216 of 246 in PDF. Register is: MDMCFG2.SYNC_MODE
+    d.setMdmNumPreamble(0b0) # Set number of preamble bits to transmit. 0b000 = 2 bytes. Register MDMCFG1.NUM_PREAMBLE
+
+    d.setEnablePktCRC(0) # disable the crc calculation
+
+    # Damnit, rfcat doesn't expose methods to control the address of this thing...
+    # radiocfg = d.getRadioConfig()
+    # modifiedcfg = radiocfg & somebit that controls address....
+    # d.setRFRegister(PKTCTRL1, modifiedcfg)
+
     #d.setMaxPower()    # Pretty sure this turns on the TX amp
-    bytes = [0, 0x41, 0xff] # Data to send
     d.setModeTX()       # It's good to enter the right mode first...
-    # d.RFxmit("".join(map(chr, bytes)))
-    d.RFxmit('KM6IDA, Sorry for the noise')
+
+    # Variable packet length = first byte has to describe LENGTH OF THE PACKET!
+    # 4 byte payload = first byte is:
+    # U = 0b01010101 = 0x55
+    # x = 0b11110000 = 0x78
+    # bytes = [0x21, 0x78] # Data to send
+    # bytes = [4, 0x78, 0x55, 0x41, 0xff] # Data to send
+    bytes = [0x78, 0x55] # Data to send
+
+    # Both of these methods have been tested and work correctly:
+    print("".join(map(chr, bytes)))
+    d.RFxmit("".join(map(chr, bytes)))
+    # d.RFxmit('xU')
+
 
     # WITHOUT THIS YOU WILL GET USB TIMEOUTS!
     d.setModeIDLE()  # DO THIS OR GET USB TIMEOUTS!
