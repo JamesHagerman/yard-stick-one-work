@@ -254,13 +254,22 @@ cd rfcat/firmware/
 
 ## Where the hell is the CODE!?
 
-Basically, there are no docs for rfcat. you get to dig through the library source.
+Out of the gate, start rfcat in in interactive mode, `rfcat -r`, than you can use ipython or `help(d.someRfcatMethod)` to dig through some of the docs...
 
-Once you start in interactive mode (which gets done in the libraries `__init__.py` file) than you can use ipython to dig through the options...
+Other than that, rely on the CC111 datasheet PDF and the rfcat sources.
 
-Or you can just go look in `chipcon_usb.py` for all the method definitions.
+Because `rfcat` just helps you play with the CC1111 registers, you'll need to know what the registers do. After that, the `rfcat` methods defined in `rflib/chipcon_nic.py` should explain the rest.
 
-Good luck. It's still a god damn mess.
+Most methods are defined in `rflib/chipcon_usb.py` and implemented in `rflib/chipcon_nic.py`:
+
+- [https://github.com/atlas0fd00m/rfcat/blob/master/rflib/chipcon_usb.py](https://github.com/atlas0fd00m/rfcat/blob/master/rflib/chipcon_usb.py)
+- [https://github.com/atlas0fd00m/rfcat/blob/master/rflib/chipcon_nic.py](https://github.com/atlas0fd00m/rfcat/blob/master/rflib/chipcon_nic.py)
+
+
+Read the CC1111 datasheet PDF's Radio section, find the register you care about, then use `ctrl-f` in `rflib/chipcon_nic.py` to find any methods actually touching that register.
+
+This repo has a few scripts that may have a bit more detail about what is actually going with some of the rfcat methods. Good luck...
+
 
 ### Trying to get yardstick one working under android:
 
