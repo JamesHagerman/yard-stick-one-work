@@ -39,7 +39,7 @@ try:
     # weird preamble insert: 010011000
 
     # Configure some preamble and sync word stuff:
-    # Preamble is usually alternating symbols, 01010101 or whatever
+    # Preamble is usually alternating symbols: 0b1010101010101010 
     # Syncword is a unique "start of frame" word that is usually non-repeating
     #   BTW, sometimes, the syncword is configured to repeat...
     # The CC1110/CC1111 can't be configured to do one or the other. It has to
@@ -61,7 +61,7 @@ try:
     # Variable packet length = first byte has to describe LENGTH OF THE PACKET!
     # 4 byte payload = first byte is:
     # U = 0b01010101 = 0x55
-    # x = 0b11110000 = 0x78
+    # x = 0b01111000 = 0x78
     # bytes = [0x21, 0x78] # Data to send
     # bytes = [4, 0x78, 0x55, 0x41, 0xff] # Data to send
     bytes = [0x78, 0x55] # Data to send
