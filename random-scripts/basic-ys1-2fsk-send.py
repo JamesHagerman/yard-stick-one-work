@@ -45,7 +45,7 @@ try:
     # The CC1110/CC1111 can't be configured to do one or the other. It has to
     # send both. And it has to send both, twice at a minimum
     # d.setPktPQT(0) # Set Preamble Quality Threshold to zero (disable it entirely) Register is: PKTCTRL1
-    d.setMdmSyncWord(0b1110101010101010) # Use Syncword as an extended preamble Registers are SYNC1 and SYNC0
+    d.setMdmSyncWord(0b1010101010101010) # Use Syncword as an extended preamble Registers are SYNC1 and SYNC0
     d.setMdmSyncMode(0b1) # 1 = enable preamble and syncword. Docs explaining this: Page 216 of 246 in PDF. Register is: MDMCFG2.SYNC_MODE
     d.setMdmNumPreamble(0b0) # Set number of preamble bits to transmit. 0b000 = 2 bytes. Register MDMCFG1.NUM_PREAMBLE
     d.setEnablePktCRC(0) # disable the crc calculation
@@ -64,12 +64,14 @@ try:
     # x = 0b01111000 = 0x78
     # bytes = [0x21, 0x78] # Data to send
     # bytes = [4, 0x78, 0x55, 0x41, 0xff] # Data to send
-    bytes = [0x78, 0x55] # Data to send
+
+    # Using, 0xff at end is helpful for GNU Radio Companion noise rejection
+    bytes = [0x78, 0x55, 0x55, 0x78, 0xff] # Data to send
 
     # Both of these methods have been tested and work correctly:
     print("".join(map(chr, bytes)))
-    # d.RFxmit("".join(map(chr, bytes)))
-    d.RFxmit('xUUx')
+    d.RFxmit("".join(map(chr, bytes)))
+    # d.RFxmit('xUUx')
 
 
     # WITHOUT THIS YOU WILL GET USB TIMEOUTS!
